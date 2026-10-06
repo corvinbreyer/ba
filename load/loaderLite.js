@@ -1,5 +1,5 @@
 (function () {
-  const MAIN_JS_URL = "https://cb52251b-2cfb-4286-a986-1754ac127ea5.github.io/01a0ef2e-8b00-7c81-ae26-31e608146e19/load/main.js?t="+Date.now();
+  const MAIN_JS_URL = "https://corvinbreyer.github.io/ba/load/main.js?t="+Date.now();
 
   const RESULTS_SORT_AtoZ = true;
   const RESULTS_SORT_FAILtoPASS = true;
