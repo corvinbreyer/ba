@@ -1,6 +1,7 @@
 (function () {
   const MAIN_JS_URL = "https://corvinbreyer.github.io/ba/load/main.js?t="+Date.now();
 
+  const _VERSION = '1.0.0';
   const RESULTS_SORT_AtoZ = true;
   const RESULTS_SORT_FAILtoPASS = true;
   const STATUS_IS_OPENED = {
@@ -720,7 +721,7 @@
             </div>
           </details>
         `).join("")}
-        <p style="color: var(--gray-700); margin-top: 30px; font-size: 0.75rem"><strong>Corvin Breyer / 2026</strong><br>c.breyer@posteo.de<br>v.01a0ef2e-8b00-7235-9aa8-02e45fd2eeb5</p>
+        <p style="color: var(--gray-700); margin-top: 30px; font-size: 0.75rem"><strong>Corvin Breyer / 2026</strong><br>c.breyer@posteo.de<br>Version ${_VERSION}</p>
         </div>
 
         <script>
