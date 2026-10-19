@@ -1,7 +1,7 @@
 (function () {
   const MAIN_JS_URL = "https://corvinbreyer.github.io/ba/load/main.js?t="+Date.now();
 
-  const _VERSION = '1.0.0';
+  const _VERSION = '1.0.1';
   const RESULTS_SORT_AtoZ = true;
   const RESULTS_SORT_FAILtoPASS = true;
   const STATUS_IS_OPENED = {
@@ -667,6 +667,7 @@
       </head>
       <body>
         <div class="content">
+          <small>Dies ist ein Hilfwerkzeug in einer frühen Fassung, garantiert keine Korrektheit der Ergebnisse und ersetzt keine vollständige Prüfung auf Barrierefreiheit.</small>
           <h1>Barrierefreiheit Analyse Report</h1>
 
           <div class="headFlex">
