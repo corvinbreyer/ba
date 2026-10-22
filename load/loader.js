@@ -1,6 +1,5 @@
 (function () {
   const MAIN_JS_URL = "https://corvinbreyer.github.io/ba/load/main.js?t="+Date.now();
-
   const _VERSION = '1.0.1';
   const RESULTS_SORT_AtoZ = true;
   const RESULTS_SORT_FAILtoPASS = true;
@@ -833,7 +832,6 @@
       </body>
       </html>
     `;
-
     reportWindow.document.open();
     reportWindow.document.write(html);
     reportWindow.document.close();
