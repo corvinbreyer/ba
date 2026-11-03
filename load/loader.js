@@ -144,8 +144,11 @@
       <!doctype html>
       <html lang="de">
       <head>
-        <meta charset="UTF-8" />
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="robots" content="noindex, nofollow">
         <title>Barrierefreiheit Analyse Report</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
         <base href="${window.location.origin}">
         <style>
           :root {
@@ -667,7 +670,7 @@
       <body>
         <div class="content">
           <small>Dies ist ein Hilfwerkzeug in einer frühen Fassung, garantiert keine Korrektheit der Ergebnisse und ersetzt keine vollständige Prüfung auf Barrierefreiheit.</small>
-          <h1>Barrierefreiheit Analyse Report</h1>
+          <h1><i class="ti ti-accessible"></i> Barrierefreiheit Analyse Report</h1>
 
           <div class="headFlex">
             <div>

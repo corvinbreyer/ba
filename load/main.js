@@ -3999,6 +3999,7 @@ const tests = {
         Das Script prüft Kontrast rechnerisch. Ob Inhalte wirklich für alle Farbfehlsichtigkeiten verständlich sind, kann automatisiert nur angenähert werden.</p>
         <p><strong>${failures.length}</strong> Textelemente unterschreiten den erforderlichen Helligkeitskontrast.</p>
         ${warnings.length > 0 ? `<p>Zusätzlich: <strong>${warnings.length}</strong> potenziell problematische Farbkombinationen.</p>` : ""}
+        <p>WCAG-Farbkontraste können mit <a href="https://tools.corvin.de/contrast/" target="_blank">diesem Werkzeug</a> auch manuell geprüft werden.</p>
         <h4>Kontrastfehler</h4>
         <ul>${failureHtml}</ul>
         ${warnings.length > 0 ? `<h4>Hinweise Farbfehlsichtigkeit</h4><ul>${warningHtml}</ul>` : ""}
