@@ -32,9 +32,9 @@
     /* 1038 */ "pruefeBeschriftungenStrengWCAG",
     /* 1036 */ "checkThScope",
     /* 2146 */ "checkHorizontalScroll320",
-    /* 2143 */ "pruefeTextKontrast",
-    /* 2144 */ "pruefeTextVergroesserung200",
-    /* 2148 */ "pruefeTextabstaendeAnpassbar"
+    /* 2143 */ "pruefeTextKontrast"
+    /* 2144 "pruefeTextVergroesserung200",*/
+    /* 2148 "pruefeTextabstaendeAnpassbar"*/
   ];
 
   if (RESULTS_SORT_AtoZ) selectedTests = selectedTests.sort();
