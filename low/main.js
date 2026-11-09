@@ -23,10 +23,59 @@
       <head>
         <meta charset="UTF-8">
         <title>Merged Pages</title>
+        <style>
+          :root {
+            --gray-50: #f4f4f6;
+            --gray-100: #e4e4e8;
+            --gray-200: #cfcfd6;
+            --gray-300: #b1b1bf;
+            --gray-400: #8d8da2;
+            --gray-500: #707087;
+            --gray-600: #58586a;
+            --gray-700: #3e3e4a;
+            --gray-800: #26262c;
+            --gray-900: #161619;
+            --gray-950: #0e0e10;
+          }
+
+          * {
+            font-size: 1rem;
+            margin: 0;
+            padding: 0;
+          }
+
+          html {
+            background: var(--gray-50);
+            color: var(--gray-900);
+          }
+
+          body {
+            padding: 40px 15px;
+          }
+
+          section {
+            border: 2px solid var(--gray-600);
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 5px;
+          }
+
+          .content {
+            max-width: 800px;
+            margin: 0 auto;
+          }
+
+          .teaserTFbgHell {
+            background: var(--gray-100);
+            padding: 2px 10px;
+            font-weight: bold;
+          }
+        </style>
       </head>
       <body>
-        <h2>Loading ${links.length} pages...</h2>
-        <main id="merged"></main>
+        <div class="content">
+          <main id="merged"></main>
+        </div>
       </body>
     </html>
   `);
@@ -78,7 +127,6 @@
           <section>
             ${content.innerHTML}
           </section>
-          <hr>
         `;
       } catch (error) {
         return `
@@ -91,6 +139,7 @@
   // Merge all results in menu order
   merged.innerHTML = results.join('');
 
-  newTab.document.querySelector('h2').textContent =
-    `Merged ${links.length} pages`;
+  let s = newTab.document.createElement('script');
+  s.innerHTML = `document.querySelectorAll('.imagelinks, .spacer20, .clearboth, a:not([href]), [style="text-align:right;"], br').forEach(el=>{el.remove()});`;
+  newTab.document.documentElement.appendChild(s);
 })();
