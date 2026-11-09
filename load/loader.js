@@ -751,6 +751,17 @@
         </div>
 
         <script>
+
+        function OPENBACK(s) {
+            window.opener.postMessage(
+            {
+              action: "highlight",
+              id: s,
+            },
+            ${window.location.origin}
+          );
+        }
+
         const TEST_CLASS = "wcag-text-spacing-test";
         const STYLE_ID = "wcag-text-spacing-test-style";
         document.body.style.fontSize = 'unset'; //2144
@@ -862,6 +873,41 @@
   }*/
 
   async function __bar_init() {
+    document.querySelectorAll('[data-scope="__bar318a5bb8aaf3e"]').forEach((el)=>{el.remove()}); //snipe remove prior execution files
+
+    window.addEventListener("message", (event) => {
+      
+    const element = document.querySelectorAll(event.data.id)[0];
+    element.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+      inline: "nearest"
+    });
+
+    element.animate(
+      [
+        {
+          outline: "4px solid #ff3dbb",
+          outlineOffset: "4px"
+        },
+        {
+          outline: "4px solid #ff3dbb",
+          outlineOffset: "4px"
+        },
+        {
+          outline: "4px solid transparent",
+          outlineOffset: "8px"
+        }
+      ],
+      {
+        duration: 2200,
+        easing: "ease-out"
+      }
+    );
+
+    window.focus();
+  });
+
     try {
       await ensureMainLoaded();
       const results = await runTests(selectedTests);
@@ -877,7 +923,6 @@
       console.error("Page analyzer failed:", err);
       alert("Page analyzer failed: " + (err.message || String(err)));
     }
-    document.querySelectorAll('[data-scope="__bar318a5bb8aaf3e"]').forEach((el)=>{el.remove()}); //snipe remove prior execution files
   }
 
   __bar_init();
