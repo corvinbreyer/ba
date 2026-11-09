@@ -2954,7 +2954,7 @@ const tests = {
         id: 'R1332',
         reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-3-3-2-beschriftungen-von-formularelementen-vorhanden', 'Prüfschritt aufrufen'],
         reqInfo: ['Prüfschritt 9.3.3.2', 'Beschriftungen von Formularelementen vorhanden'],
-        title: "Sichtbare Beschriftungen von Formularelementen",
+        title: "<i class='ti ti-forms'></i> Sichtbare Beschriftungen von Formularelementen",
         status: "pass",
         content: "<p>Es wurden keine sichtbaren relevanten Formularelemente gefunden.</p>"
       };
@@ -2985,7 +2985,7 @@ const tests = {
       id: 'R1332',
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-3-3-2-beschriftungen-von-formularelementen-vorhanden', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.3.3.2', 'Beschriftungen von Formularelementen vorhanden'],
-      title: "Sichtbare Beschriftungen von Formularelementen",
+      title: "<i class='ti ti-forms'></i> Sichtbare Beschriftungen von Formularelementen",
       status,
       content: summary + details
     };

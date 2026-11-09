@@ -1,7 +1,7 @@
 (function () {
   const MAIN_JS_URL = "https://corvinbreyer.github.io/ba/load/main.js?t="+Date.now();
-
-  const _VERSION = '1.0.4';
+  
+  const _VERSION = '1.0.5';
   const RESULTS_SORT_AtoZ = true;
   const RESULTS_SORT_FAILtoPASS = true;
   const STATUS_IS_OPENED = {
@@ -630,6 +630,13 @@
               transition: all 0.2s;
           }
 
+          .toggleText i {
+            color: var(--gray-900);
+            background: var(--gray-100);
+            padding: 5px;
+            border-radius: 8px;
+          }
+
           .inline-content {
               padding:10px;
           }
@@ -667,11 +674,11 @@
               </div>
               
               <div class="score-box">
-                <h2>Gesamtwertung: <span style="color:var(--${ratingColor}-black); background:var(--${ratingColor}-white); padding: 0 4px; border-radius: 6px">${ratingOutput}%</span></h2>
+                <h2>Gesamtwertung: <span style="color:var(--${ratingColor}-950); background:var(--${ratingColor}-300); padding: 0 4px; border-radius: 6px">${ratingOutput}%</span></h2>
                 <div class="summary">
                   ${summary.crash > 0 ? `
                   <div class="summary-box summary-crash">
-                    Crash
+                    Error
                     <strong>${summary.crash}</strong>
                   </div>` : ''}
                   <div class="summary-box summary-fail">
@@ -699,7 +706,7 @@
 
           ${results.map(r => `<details class="box box-${r.status}" id="${r.uuid}" ${STATUS_IS_OPENED[r.status] ? 'open' : ''}>
             <summary class="box-header">
-              <h2 class="toggleText">${__bar_escapeHtml(r.title)}</h2>
+              <h2 class="toggleText">${r.title}</h2>
               <span class="badge badge-${r.status}">${getBadgeLabel(r.status)}</span>
             </summary>
             <div class="box-content details-content">
@@ -713,7 +720,7 @@
                 </summary>
                 <div class="inline-content details-content">
                   <div class="reqInfo">
-                    <p><strong>${__bar_escapeHtml(r.reqInfo[0])}</strong><br>
+                    <p><strong><i class="ti ti-accessible"></i> ${__bar_escapeHtml(r.reqInfo[0])}</strong><br>
                       ${__bar_escapeHtml(r.reqInfo[1])}<br>
                       <a class="reqLink" href="${__bar_escapeHtml(r.reqLink[0])}" target="_blank">${__bar_escapeHtml(r.reqLink[1])}</a><br>
                       <span class="reqId">Projektinterne ID: ${__bar_escapeHtml(r.id)}</span>
@@ -821,7 +828,6 @@
       </body>
       </html>
     `;
-
     reportWindow.document.open();
     reportWindow.document.write(html);
     reportWindow.document.close();

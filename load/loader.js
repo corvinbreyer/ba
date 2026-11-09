@@ -1,7 +1,7 @@
 (function () {
   const MAIN_JS_URL = "https://corvinbreyer.github.io/ba/load/main.js?t="+Date.now();
   
-  const _VERSION = '1.0.4';
+  const _VERSION = '1.0.5';
   const RESULTS_SORT_AtoZ = true;
   const RESULTS_SORT_FAILtoPASS = true;
   const STATUS_IS_OPENED = {
@@ -645,6 +645,13 @@
               transition: all 0.2s;
           }
 
+          .toggleText i {
+            color: var(--gray-900);
+            background: var(--gray-100);
+            padding: 5px;
+            border-radius: 8px;
+          }
+
           .inline-content {
               padding:10px;
           }
@@ -682,11 +689,11 @@
               </div>
               
               <div class="score-box">
-                <h2>Gesamtwertung: <span style="color:var(--${ratingColor}-black); background:var(--${ratingColor}-white); padding: 0 4px; border-radius: 6px">${ratingOutput}%</span></h2>
+                <h2>Gesamtwertung: <span style="color:var(--${ratingColor}-950); background:var(--${ratingColor}-300); padding: 0 4px; border-radius: 6px">${ratingOutput}%</span></h2>
                 <div class="summary">
                   ${summary.crash > 0 ? `
                   <div class="summary-box summary-crash">
-                    Crash
+                    Error
                     <strong>${summary.crash}</strong>
                   </div>` : ''}
                   <div class="summary-box summary-fail">
