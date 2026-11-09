@@ -4696,14 +4696,14 @@ function __bar_escapeHtml(str) {
     .replaceAll("'", "&#039;");
 }
 
-function cloneEl(element, container = null) {
-  /*//return el.parentElement.outerHTML;
+function cloneEl(el, container = null) {
+  /*return el.parentElement.outerHTML;*/
   el.classList.add("highlight-temp");
   let parent = el.parentElement;
   if (container) parent = container;
   const html = parent.outerHTML;
   el.classList.remove("highlight-temp");
-  //return html;
+  /*return html;*/
   const iframe = document.createElement("iframe");
   iframe.srcdoc = `
     <!doctype html>
@@ -4733,34 +4733,7 @@ function cloneEl(element, container = null) {
     </html>
   `;
 
-  return iframe.outerHTML;*/
-
-  const clone = element.cloneNode(true);
-
-  const originalElements = [
-    element,
-    ...element.querySelectorAll("*")
-  ];
-
-  const clonedElements = [
-    clone,
-    ...clone.querySelectorAll("*")
-  ];
-
-  originalElements.forEach((original, index) => {
-    const computed = window.opener.getComputedStyle(original);
-    const target = clonedElements[index];
-
-    for (const property of computed) {
-      target.style.setProperty(
-        property,
-        computed.getPropertyValue(property),
-        computed.getPropertyPriority(property)
-      );
-    }
-  });
-
-  return clone;
+  return iframe.outerHTML;
 }
 
 function getSelector(el) {
