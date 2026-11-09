@@ -678,7 +678,7 @@
       <body>
         <div class="content">
           <small>Dies ist ein Hilfwerkzeug in einer frühen Fassung, garantiert keine Korrektheit der Ergebnisse und ersetzt keine vollständige Prüfung auf Barrierefreiheit.</small>
-          <h1><i class="ti ti-accessible"></i> <button onclick="window.opener.focus();">test</button> Barrierefreiheit Analyse Report</h1>
+          <h1><i class="ti ti-accessible"></i> Barrierefreiheit Analyse Report</h1>
 
           <div class="headFlex">
             <div>
@@ -751,7 +751,6 @@
         </div>
 
         <script>
-
         const TEST_CLASS = "wcag-text-spacing-test";
         const STYLE_ID = "wcag-text-spacing-test-style";
         document.body.style.fontSize = 'unset'; //2144
@@ -793,17 +792,6 @@
 
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
-          function OPENBACK(s) {
-            window.opener.focus();
-            window.opener.postMessage(
-              {
-                action: "highlight",
-                id: s,
-              },
-              ${window.location.origin}
-            );
-          }
-
           function openBoxes(scope = '') {
             document.querySelectorAll('details.box' + scope).forEach(el => el.setAttribute('open', ''));
           }
@@ -874,32 +862,6 @@
   }*/
 
   async function __bar_init() {
-    document.querySelectorAll('[data-scope="__bar318a5bb8aaf3e"]').forEach((el)=>{el.remove()}); //snipe remove prior execution files
-
-    window.addEventListener("message", (event) => {
-      
-      const element = document.querySelectorAll(event.data.id)[0];
-      element.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-        inline: "nearest"
-      });
-
-      element.style.setProperty(
-        "outline",
-        "4px solid #ff3dbb",
-        "important"
-      );
-
-      element.style.setProperty(
-        "outline-offset",
-        "4px",
-        "important"
-      );
-
-      window.focus();
-    });
-
     try {
       await ensureMainLoaded();
       const results = await runTests(selectedTests);
@@ -915,6 +877,7 @@
       console.error("Page analyzer failed:", err);
       alert("Page analyzer failed: " + (err.message || String(err)));
     }
+    document.querySelectorAll('[data-scope="__bar318a5bb8aaf3e"]').forEach((el)=>{el.remove()}); //snipe remove prior execution files
   }
 
   __bar_init();
