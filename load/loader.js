@@ -678,7 +678,7 @@
       <body>
         <div class="content">
           <small>Dies ist ein Hilfwerkzeug in einer frühen Fassung, garantiert keine Korrektheit der Ergebnisse und ersetzt keine vollständige Prüfung auf Barrierefreiheit.</small>
-          <h1><i class="ti ti-accessible"></i> Barrierefreiheit Analyse Report</h1>
+          <h1><i class="ti ti-accessible"></i> <button onclick="window.opener.focus();">test</button> Barrierefreiheit Analyse Report</h1>
 
           <div class="headFlex">
             <div>
@@ -752,16 +752,6 @@
 
         <script>
 
-        function OPENBACK(s) {
-            window.opener.postMessage(
-            {
-              action: "highlight",
-              id: s,
-            },
-            ${window.location.origin}
-          );
-        }
-
         const TEST_CLASS = "wcag-text-spacing-test";
         const STYLE_ID = "wcag-text-spacing-test-style";
         document.body.style.fontSize = 'unset'; //2144
@@ -803,6 +793,17 @@
 
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
+          function OPENBACK(s) {
+            window.opener.focus();
+            window.opener.postMessage(
+              {
+                action: "highlight",
+                id: s,
+              },
+              ${window.location.origin}
+            );
+          }
+
           function openBoxes(scope = '') {
             document.querySelectorAll('details.box' + scope).forEach(el => el.setAttribute('open', ''));
           }
@@ -877,36 +878,27 @@
 
     window.addEventListener("message", (event) => {
       
-    const element = document.querySelectorAll(event.data.id)[0];
-    element.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-      inline: "nearest"
+      const element = document.querySelectorAll(event.data.id)[0];
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "nearest"
+      });
+
+      element.style.setProperty(
+        "outline",
+        "4px solid #ff3dbb",
+        "important"
+      );
+
+      element.style.setProperty(
+        "outline-offset",
+        "4px",
+        "important"
+      );
+
+      window.focus();
     });
-
-    element.animate(
-      [
-        {
-          outline: "4px solid #ff3dbb",
-          outlineOffset: "4px"
-        },
-        {
-          outline: "4px solid #ff3dbb",
-          outlineOffset: "4px"
-        },
-        {
-          outline: "4px solid transparent",
-          outlineOffset: "8px"
-        }
-      ],
-      {
-        duration: 2200,
-        easing: "ease-out"
-      }
-    );
-
-    window.focus();
-  });
 
     try {
       await ensureMainLoaded();
