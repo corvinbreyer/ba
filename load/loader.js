@@ -714,7 +714,7 @@
 
           ${results.map(r => `<details class="box box-${r.status}" id="${r.uuid}" ${STATUS_IS_OPENED[r.status] ? 'open' : ''}>
             <summary class="box-header">
-              <h2 class="toggleText">${__bar_escapeHtml(r.title)}</h2>
+              <h2 class="toggleText">${r.title}</h2>
               <span class="badge badge-${r.status}">${getBadgeLabel(r.status)}</span>
             </summary>
             <div class="box-content details-content">

@@ -4010,7 +4010,7 @@ const tests = {
       id: 'R2143',
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-4-3-kontraste-von-texten-ausreichend', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.1.4.3', 'Kontraste von Texten ausreichend'],
-      title: "Text-Kontrast und Farbfehlsichtigkeit",
+      title: "<code>Text-Kontrast</code> und Farbfehlsichtigkeit",
       status: status,
       content: content
     };
