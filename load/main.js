@@ -9,7 +9,7 @@ const tests = {
       id: 'R1012',
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-1-1b-alternativtexte-fuer-grafiken-und-objekte', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.1.1.1b', 'Alternativtexte für Grafiken und Objekte'],
-      title: "Bilder ohne Alt-Tag",
+      title: "<i class='ti ti-photo-x'></i> Bilder ohne Alt-Tag",
       status: missingAlt.length === 0 ? "pass" : "fail",
       content: missingAlt.length === 0
         ? "Alle Bilder haben ein vorhandenes <code>alt</code>-Attribut."
@@ -36,7 +36,7 @@ const tests = {
       id: 'R1013',
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-1-1c-leere-alt-attribute-fuer-layoutgrafiken', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.1.1.1c', 'Leere alt-Attribute für Layoutgrafiken'],
-      title: "Bilder mit leerem Alt-Tag",
+      title: "<i class='ti ti-photo-question'></i> Bilder mit leerem Alt-Tag",
       status: emptyAltImages.length === 0 ? "pass" : "check",
       content: emptyAltImages.length === 0
         ? "<p>Alle Alt-Texte in Bildern sind befüllt.</p>"
@@ -167,7 +167,7 @@ const tests = {
       id: 'R1244',
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-2-4-4-aussagekraeftige-linktexte', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.2.4.4', 'Aussagekräftige Linktexte'],
-      title: "Links ohne zugänglichen Namen",
+      title: "<i class='ti ti-link'></i> Links ohne zugänglichen Namen",
       status: badLinks.length === 0 ? "pass" : "fail",
       content: badLinks.length === 0
         ? "<p>Keine Links ohne zugänglichen Namen gefunden.</p>"
@@ -202,7 +202,7 @@ const tests = {
         id: 'R1031',
         reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-3-1a-html-strukturelemente-fuer-ueberschriften', 'Prüfschritt aufrufen'],
         reqInfo: ['Prüfschritt 9.1.3.1a', 'HTML-Strukturelemente für Überschriften'],
-        title: "Sprünge in Überschriften",
+        title: "<i class='ti ti-h-3'></i> Sprünge in Überschriften",
         status: "check",
         content: `<p>Es wurden keine Überschriften oder ähnliche Elemente auf der Seite gefunden. Sollte es sich um eine inhaltsreiche Seite handeln, sollte dies vermieden werden.</p>`
       };
@@ -310,7 +310,7 @@ const tests = {
       id: 'R1031',
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-3-1a-html-strukturelemente-fuer-ueberschriften', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.1.3.1a', 'HTML-Strukturelemente für Überschriften'],
-      title: "Sprünge in Überschriften",
+      title: "<i class='ti ti-h-3'></i> Sprünge in Überschriften",
       status: resStatus,
       content: `<p>${h1res[1]}</p>
       ${invalidHeadings_content}
@@ -332,7 +332,7 @@ const tests = {
         id: 'R1242',
         reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-2-4-2-sinnvolle-dokumenttitel', 'Prüfschritt aufrufen'],
         reqInfo: ['Prüfschritt 9.2.4.2', 'Sinnvolle Dokumenttitel'],
-        title: "Sinnvoller Dokumenttitel",
+        title: "<i class='ti ti-text-outline'></i> Sinnvoller Dokumenttitel",
         status: "fail",
         content: `<p>Dokumenttitel ist ausschließlich "${COMPANY_NAME}" und gibt daher keine Informationen über den Inhalt der Seite.</p>`
       };
@@ -356,7 +356,7 @@ const tests = {
         id: 'R1242',
         reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-2-4-2-sinnvolle-dokumenttitel', 'Prüfschritt aufrufen'],
         reqInfo: ['Prüfschritt 9.2.4.2', 'Sinnvolle Dokumenttitel'],
-        title: "Sinnvoller Dokumenttitel",
+        title: "<i class='ti ti-text-outline'></i> Sinnvoller Dokumenttitel",
         status: "fail",
         content: "<p>Kein Dokumenttitel vorhanden.</p>"
       };
@@ -430,7 +430,7 @@ const tests = {
       id: 'R1242',
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-2-4-2-sinnvolle-dokumenttitel', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.2.4.2', 'Sinnvolle Dokumenttitel'],
-      title: "Sinnvoller Dokumenttitel",
+      title: "<i class='ti ti-text-outline'></i> Sinnvoller Dokumenttitel",
       status,
       content: `<p>${parts.join("<br>")}</p>`
     };
@@ -526,7 +526,7 @@ const tests = {
       id: 'R1411',
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-4-1-1-korrekte-syntax', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.4.1.1', 'Korrekte Syntax'],
-      title: "Elemente IDs",
+      title: "<i class='ti ti-hash'></i> Elemente IDs",
       status,
       content
     };
@@ -582,7 +582,7 @@ const tests = {
       id: 'R1411',
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-4-1-1-korrekte-syntax', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.4.1.1', 'Korrekte Syntax'],
-      title: "Doppelte Attribute",
+      title: "<i class='ti ti-tags'></i> Doppelte Attribute",
       status,
       content
     };
@@ -665,7 +665,7 @@ const tests = {
         id: 'R1034',
         reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-3-1d-inhalt-gegliedert', 'Prüfschritt aufrufen'],
         reqInfo: ['Prüfschritt 9.1.3.1d', 'Inhalt gegliedert'],
-        title: "CSS-Text in Pseudo-Elementen",
+        title: "<i class='ti ti-file-type-css'></i> CSS-Text in Pseudo-Elementen",
         status: "pass",
         content: '<p>Kein per CSS eingebundener Text über "::before" oder "::after" mit mehr als 2 Zeichen gefunden.</p>'
       };
@@ -675,7 +675,7 @@ const tests = {
       id: 'R1034',
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-3-1d-inhalt-gegliedert', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.1.3.1d', 'Inhalt gegliedert'],
-      title: "CSS-Text in Pseudo-Elementen",
+      title: "<i class='ti ti-file-type-css'></i> CSS-Text in Pseudo-Elementen",
       status: "fail",
       content:
         `<p>Es wurde${results.length == 1 ? '' : 'n'} ${results.length} Element${results.length == 1 ? '' : 'e'} mit per CSS eingebundenem Text gefunden:</p>
@@ -958,7 +958,7 @@ const tests = {
       id: "R1241",
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-2-4-1-bereiche-ueberspringbar', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.2.4.1', 'Bereiche überspringbar'],
-      title: "Landmarken / Blöcke umgehen",
+      title: "<i class='ti ti-template'></i> Landmarken / Blöcke umgehen",
       status,
       content: `
         <p>${summaryList}<br>${skipLinkSummary}<br>${frameSummary}</p>
@@ -1187,7 +1187,7 @@ const tests = {
         id: 'R1035',
         reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-3-1e-datentabellen-richtig-aufgebaut', 'Prüfschritt aufrufen'],
         reqInfo: ['Prüfschritt 9.1.3.1e', 'Datentabellen richtig aufgebaut'],
-        title: "Struktur sichtbarer Tabellen prüfen",
+        title: "<i class='ti ti-table-export'></i> Struktur sichtbarer Tabellen prüfen",
         status: "pass",
         content: visibleTables.length
           ? `<p>Alle ${visibleTables.length} visuell gestalteten Tabellen sind korrekt aufgebaut und verschachtelt.</p>`
@@ -1226,7 +1226,7 @@ const tests = {
       id: 'R1035',
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-3-1e-datentabellen-richtig-aufgebaut', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.1.3.1e', 'Datentabellen richtig aufgebaut'],
-      title: "Struktur sichtbarer Tabellen prüfen",
+      title: "<i class='ti ti-table-export'></i> Struktur sichtbarer Tabellen prüfen",
       status: "fail",
       content: html
     };
@@ -1352,7 +1352,7 @@ const tests = {
         id: 'R1037',
         reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-3-1g-kein-strukturmarkup-fuer-layouttabellen', 'Prüfschritt aufrufen'],
         reqInfo: ['Prüfschritt 9.1.3.1g', 'Kein Strukturmarkup für Layouttabellen'],
-        title: "Visuell transparente Tabellen prüfen",
+        title: "<i class='ti ti-table-off'></i> Visuell transparente Tabellen prüfen",
         status: "pass",
         content: transparentTables.length
           ? `<p>Keine verbotenen Elemente oder Attribute in ${transparentTables.length} visuell transparenten Tabellen gefunden.</p>`
@@ -1391,7 +1391,7 @@ const tests = {
       id: 'R1037',
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-3-1g-kein-strukturmarkup-fuer-layouttabellen', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.1.3.1g', 'Kein Strukturmarkup für Layouttabellen'],
-      title: "Visuell transparente Tabellen prüfen",
+      title: "<i class='ti ti-table-off'></i> Visuell transparente Tabellen prüfen",
       status: "fail",
       content: html
     };
@@ -1422,7 +1422,7 @@ const tests = {
       id: 'R1311',
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-3-1-1-hauptsprache-angegeben', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.3.1.1', 'Hauptsprache angegeben'],
-      title: "lang-Attribut prüfen",
+      title: "<i class='ti ti-language'></i> lang-Attribut prüfen",
       status,
       content
     };
@@ -1836,7 +1836,7 @@ const tests = {
       id: 'R1141',
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-4-1-ohne-farben-nutzbar', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.1.4.1', 'Ohne Farben nutzbar'],
-      title: "Links sollen sich durch mehr als nur die Textfarbe von anderem Text abheben",
+      title: "<i class='ti ti-paint'></i> Links sollen sich durch mehr als nur die Textfarbe von anderem Text abheben",
       status: overallStatus,
       content: `
         ${summaryHtml}
@@ -2081,7 +2081,7 @@ const tests = {
       id: 'R1032',
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-3-1b-html-strukturelemente-fuer-listen', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.1.3.1b', 'HTML-Strukturelemente für Listen'],
-      title: "Listenstruktur prüfen",
+      title: "<i class='ti ti-list'></i> Listenstruktur prüfen",
       status: status,
       content
     };
@@ -2629,7 +2629,7 @@ const tests = {
       id: 'R2135',
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-3-5-eingabefelder-zu-nutzerdaten-vermitteln-den-zweck', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.1.3.5', 'Eingabefelder zu Nutzerdaten vermitteln den Zweck'],
-      title: "Autocomplete-Attribute prüfen",
+      title: "<i class='ti ti-text-regex-question'></i> Autocomplete-Attribute prüfen",
       status: status,
       content: content
     };
@@ -2685,7 +2685,7 @@ const tests = {
         id: 'R1253',
         reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-2-5-3-sichtbare-beschriftung-teil-des-zugaenglichen-namens', 'Prüfschritt aufrufen'],
         reqInfo: ['Prüfschritt 9.2.5.3', 'Sichtbare Beschriftung Teil des zugänglichen Namens'],
-        title: "Sichtbare Beschriftung im Namen",
+        title: "<i class='ti ti-input-search'></i> Sichtbare Beschriftung im Namen",
         status: "pass",
         content: "Es wurden keine Probleme mit zugänglichen Namen in Bedienelementen erkannt oder gefunden."
       };
@@ -2712,7 +2712,7 @@ const tests = {
       id: 'R1253',
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-2-5-3-sichtbare-beschriftung-teil-des-zugaenglichen-namens', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.2.5.3', 'Sichtbare Beschriftung Teil des zugänglichen Namens'],
-      title: "Sichtbare Beschriftung im Namen",
+      title: "<i class='ti ti-input-search'></i> Sichtbare Beschriftung im Namen",
       status: "fail",
       content: `
         <p>Es wurden ${issues.length} Probleme gefunden:</p>
@@ -3577,7 +3577,7 @@ const tests = {
       id: 'R1038',
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-3-1h-beschriftung-von-formularelementen-programmatisch-ermittelbar', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.1.3.1h', 'Beschriftung von Formularelementen programmatisch ermittelbar'],
-      title: "Beschriftungen und Gruppierungsbeschriftungen von Formularfeldern",
+      title: "<i class='ti ti-forms'></i> Beschriftungen und Gruppierungsbeschriftungen von Formularfeldern",
       status,
       content: summary + details
     };
@@ -3594,7 +3594,7 @@ const tests = {
         id: 'R1036',
         reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-3-1f-zuordnung-von-tabellenzellen', 'Prüfschritt aufrufen'],
         reqInfo: ['Prüfschritt 9.1.3.1f', 'Zuordnung von Tabellenzellen'],
-        title: "Prüfe th scopes",
+        title: "<i class='ti ti-table'></i> Prüfe th scopes",
         status: "pass",
         content: `
           <p>Es wurden keine &lt;th&gt;-Elemente auf der Seite gefunden.</p>
@@ -3645,7 +3645,7 @@ const tests = {
       id: 'R1036',
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-3-1f-zuordnung-von-tabellenzellen', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.1.3.1f', 'Zuordnung von Tabellenzellen'],
-      title: "Prüfe th scopes",
+      title: "<i class='ti ti-table'></i> Prüfe th scopes",
       status: fail > 0 ? "fail" : (check > 0 ? "check" : "pass"),
       content: `
         <p>Gefundene &lt;th&gt;-Elemente: <strong>${thElements.length}</strong><br>
@@ -3669,7 +3669,7 @@ const tests = {
           id: "R2146",
           reqLink: ["https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-4-10-inhalte-brechen-um", "Prüfschritt aufrufen"],
           reqInfo: ["Prüfschritt 9.1.4.10", "Inhalte brechen um"],
-          title: "Horizontaler Überlauf bei 320px",
+          title: "<i class='ti ti-device-mobile'></i> Horizontaler Überlauf bei 320px",
           status: "check",
           content: localFile ? `
             <p>Dieser Test kann nicht bei lokalen HTML-Dateien ausgeführt werden (<code>file://</code>).<br>
@@ -3692,7 +3692,7 @@ const tests = {
           id: "R2146",
           reqLink: ["https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-4-10-inhalte-brechen-um", "Prüfschritt aufrufen"],
           reqInfo: ["Prüfschritt 9.1.4.10", "Inhalte brechen um"],
-          title: "Horizontaler Überlauf bei 320px",
+          title: "<i class='ti ti-device-mobile'></i> Horizontaler Überlauf bei 320px",
           status: "check",
           content: "Popup konnte nicht geöffnet werden. Bitte erlaube Popups und führe den Test danach erneut aus."
         });
@@ -3720,7 +3720,7 @@ const tests = {
             id: "R2146",
             reqLink: ["https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-4-10-inhalte-brechen-um", "Prüfschritt aufrufen"],
             reqInfo: ["Prüfschritt 9.1.4.10", "Inhalte brechen um"],
-            title: "Horizontaler Überlauf bei 320px",
+            title: "<i class='ti ti-device-mobile'></i> Horizontaler Überlauf bei 320px",
             status: overflow ? "fail" : "pass",
             content: overflow ? `<p>Die Seite läuft bei 320px Breite horizontal über und ist daher scrollbar.</p>
             <p>Erkannte Viewport-Breite: <code>${clientWidth}px</code><br>
@@ -3741,7 +3741,7 @@ const tests = {
             id: "R2146",
             reqLink: ["https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-4-10-inhalte-brechen-um", "Prüfschritt aufrufen"],
             reqInfo: ["Prüfschritt 9.1.4.10", "Inhalte brechen um"],
-            title: "Horizontaler Überlauf bei 320px",
+            title: "<i class='ti ti-device-mobile'></i> Horizontaler Überlauf bei 320px",
             status: "crash",
             content: `Test abgebrochen: ${__bar_escapeHtml(e && e.message ? e.message : e)}`
           });
@@ -4010,7 +4010,7 @@ const tests = {
       id: 'R2143',
       reqLink: ['https://bitvtest.de/pruefschritt/bitv-20-web/bitv-20-web-9-1-4-3-kontraste-von-texten-ausreichend', 'Prüfschritt aufrufen'],
       reqInfo: ['Prüfschritt 9.1.4.3', 'Kontraste von Texten ausreichend'],
-      title: "<code>Text-Kontrast</code> und Farbfehlsichtigkeit",
+      title: "<i class='ti ti-circle-half-2'></i> Text-Kontrast und Farbfehlsichtigkeit",
       status: status,
       content: content
     };

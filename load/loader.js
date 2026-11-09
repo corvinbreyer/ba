@@ -1,7 +1,7 @@
 (function () {
   const MAIN_JS_URL = "https://corvinbreyer.github.io/ba/load/main.js?t="+Date.now();
   
-  const _VERSION = '1.0.3';
+  const _VERSION = '1.0.4';
   const RESULTS_SORT_AtoZ = true;
   const RESULTS_SORT_FAILtoPASS = true;
   const STATUS_IS_OPENED = {
@@ -728,7 +728,7 @@
                 </summary>
                 <div class="inline-content details-content">
                   <div class="reqInfo">
-                    <p><strong>${__bar_escapeHtml(r.reqInfo[0])}</strong><br>
+                    <p><strong><i class="ti ti-accessible"></i> ${__bar_escapeHtml(r.reqInfo[0])}</strong><br>
                       ${__bar_escapeHtml(r.reqInfo[1])}<br>
                       <a class="reqLink" href="${__bar_escapeHtml(r.reqLink[0])}" target="_blank">${__bar_escapeHtml(r.reqLink[1])}</a><br>
                       <span class="reqId">Projektinterne ID: ${__bar_escapeHtml(r.id)}</span>
