@@ -61,6 +61,10 @@
 			background: var(--gray-50);
           }
 
+		  .highlight {
+		  outline: 2px solid blue;
+		  }
+
           .content {
             max-width: 800px;
             margin: 0 auto;
@@ -118,6 +122,17 @@
         <div class="content">
           <main id="merged"></main>
         </div>
+		<script>
+
+		document.addEventListener("click", (event) => {
+		  const container = event.target.closest(".elementCont");
+		
+		  document.querySelectorAll(".elementCont").forEach(el => {
+		    el.classList.toggle("highlight", el === container);
+		  });
+		});
+		
+		</script>
       </body>
     </html>
   `);
