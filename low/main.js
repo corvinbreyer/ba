@@ -226,7 +226,6 @@
     button.addEventListener('click', async () => {
       try {
         await action();
-        button.textContent = label.startsWith('Copy') ? 'Copied' : label;
       } catch {
         button.textContent = label + ' failed';
       }
