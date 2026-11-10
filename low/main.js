@@ -62,7 +62,7 @@
           }
 
 		  .highlight {
-		  outline: 2px solid blue;
+		  	outline: 3px solid blue;
 		  }
 
           .content {
@@ -112,10 +112,20 @@
             border: 1px solid var(--gray-300);
             border-radius: 4px;
             background: var(--gray-100);
-            color: var(--gray-900);
+			color: var(--gray-950);
             font-size: 0.75rem;
             cursor: pointer;
           }
+
+		  .merged-action:hover {
+		  	background: var(--gray-200);
+			border-color: var(--gray-600);
+		  }
+
+		  .merged-action:active {
+		  	background: var(--gray-500);
+			border-color: var(--gray-800);
+		  }
         </style>
       </head>
       <body>
