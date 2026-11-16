@@ -645,7 +645,8 @@
               transition: all 0.2s;
           }
 
-          .toggleText i {
+          .toggleText i,
+          .toggleText svg {
             color: var(--gray-900);
             background: var(--gray-100);
             padding: 5px;
@@ -678,7 +679,7 @@
       <body>
         <div class="content">
           <small>Dies ist ein Hilfwerkzeug in einer frühen Fassung, garantiert keine Korrektheit der Ergebnisse und ersetzt keine vollständige Prüfung auf Barrierefreiheit.</small>
-          <h1><i class="ti ti-accessible"></i> Barrierefreiheit Analyse Report</h1>
+          <h1><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-accessible">	<path stroke="none" d="M0 0h24v24H0z" fill="none" />	<path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />	<path d="M10 16.5l2 -3l2 3m-2 -3v-2l3 -1m-6 0l3 1" />	<path d="M11.5 7.5a.5 .5 0 1 0 1 0a.5 .5 0 1 0 -1 0" fill="currentColor" /></svg> Barrierefreiheit Analyse Report</h1>
 
           <div class="headFlex">
             <div>
