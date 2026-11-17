@@ -1,0 +1,280 @@
+(() => {
+  const esc = s =>
+    String(s ?? "").replace(/[&<>"]/g, m => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;"
+    }[m]));
+
+  const norm = s =>
+    String(s ?? "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^\p{L}\p{N}]+/gu, " ")
+      .trim();
+
+  const words = s => norm(s).split(/\s+/).filter(Boolean);
+  const uniq = a => Array.from(new Set(a));
+
+  const sim = (a, b) => {
+    const A = new Set(words(a));
+    const B = new Set(words(b));
+    if (!A.size || !B.size) return 0;
+    let intersection = 0;
+    for (const x of A) if (B.has(x)) intersection++;
+    return intersection / Math.max(A.size, B.size);
+  };
+
+  const badge = t => t === "ok" ? "OK" : t === "warn" ? "HINWEIS" : "FEHLER";
+
+  const title = (document.title || "").trim();
+  const h1 = (document.querySelector("h1")?.textContent || "").trim();
+  const og =
+    (document.querySelector('meta[property="og:title"]')?.content ||
+      document.querySelector('meta[name="og:title"]')?.content ||
+      "").trim();
+
+  const decorRe =
+    /[★☆✦✧✨🔥✅✔✳✴❤♥➜➤➔➝⚡✓✱❖◆◀▶⬤🟢🔴🟡🟣🟠]|[【】《》「」『』〔〕〘〙]/u;
+
+  const genericRe =
+    /^(home|startseite|homepage|index|untitled|document|seite|page|artikel|blog|willkommen|neuigkeiten|news)$/i;
+
+  const urlishRe = /^(https?:\/\/|www\.|[a-z0-9-]+\.[a-z]{2,})/i;
+
+  const alpha = (title.match(/\p{L}/gu) || []).length;
+  const upperAlpha = (title.match(/\p{Lu}/gu) || []).length;
+
+  const parts = title
+    .split(/\s*[|–—\-·•»«:]\s*/)
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  const normParts = parts.map(norm).filter(Boolean);
+  const dupParts = normParts.filter((x, i, a) => a.indexOf(x) !== i);
+
+  const excl = (title.match(/!/g) || []).length;
+  const qmarks = (title.match(/\?/g) || []).length;
+  const dotRuns = (title.match(/[.]{3,}/g) || []).length;
+  const multiSep = (title.match(/[|–—\-·•»«:]/g) || []).length;
+  const titleWords = words(title);
+
+  const checks = [];
+  const push = (status, name, meta, items = []) => checks.push({ status, name, meta, items });
+
+  if (!title) {
+    push("fail", "Titel vorhanden", "Der Seitentitel ist leer oder fehlt.");
+  } else {
+    push(
+      title.length >= 30 && title.length <= 65 ? "ok" : title.length < 12 || title.length > 90 ? "fail" : "warn",
+      "Länge des Titels",
+      `Titel-Länge: <b>${title.length}</b> Zeichen. Empfehlenswert sind grob <b>30–65</b> Zeichen. Sehr kurze oder sehr lange Titel sind oft wenig aussagekräftig oder werden abgeschnitten.`,
+      [`Gefundener Titel: <code>${esc(title)}</code>`]
+    );
+
+    const generic = genericRe.test(norm(title).replace(/\s+/g, " "));
+    push(
+      generic ? "fail" : titleWords.length >= 3 ? "ok" : "warn",
+      "Sprechend / sinnvoll",
+      generic
+        ? "Der Titel wirkt generisch und beschreibt den Inhalt kaum."
+        : "Geprüft wurde grob, ob der Titel nach einem beschreibenden Seitentitel aussieht.",
+      [
+        `Wörter im Titel: <b>${titleWords.length}</b>`,
+        titleWords.length < 3
+          ? "Sehr wenige Wörter gefunden; das kann zu unspezifisch sein."
+          : "Ausreichend Wörter für einen beschreibenden Titel gefunden."
+      ]
+    );
+
+    const decorHits = [
+      decorRe.test(title) ? "Dekorative Sonderzeichen/Emoji erkannt." : "",
+      excl >= 2 ? `Mehrfache Ausrufezeichen erkannt (<b>${excl}</b>).` : "",
+      qmarks >= 2 ? `Mehrfache Fragezeichen erkannt (<b>${qmarks}</b>).` : "",
+      dotRuns ? "Auffällige Punktreihen erkannt." : "",
+      /[~_^=*]{2,}/.test(title) ? "Auffällige Schmuckzeichen erkannt." : "",
+      /^\W+|\W+$/.test(title) ? "Der Titel beginnt oder endet mit ungewöhnlichen Sonderzeichen." : ""
+    ].filter(Boolean);
+
+    const decorStatus = decorHits.length >= 2 ? "fail" : decorHits.length === 1 ? "warn" : "ok";
+    push(
+      decorStatus,
+      "Nicht typografisch ausgeschmückt",
+      decorHits.length
+        ? "Es wurden mögliche Schmuckelemente erkannt, die in einem nüchternen Dokumenttitel oft unpassend sind."
+        : "Keine auffälligen Schmuckelemente im Titel erkannt.",
+      decorHits.length ? decorHits : ["Keine dekorativen Muster erkannt."]
+    );
+
+    const upperRatio = alpha ? upperAlpha / alpha : 0;
+    const allCaps = alpha >= 8 && upperRatio > 0.9;
+    push(
+      allCaps ? "warn" : "ok",
+      "Groß-/Kleinschreibung",
+      allCaps
+        ? "Der Titel besteht fast vollständig aus Großbuchstaben. Das wirkt oft weniger lesbar."
+        : "Keine auffällige Vollversalien-Schreibung erkannt.",
+      [
+        `Buchstaben gesamt: <b>${alpha}</b>`,
+        alpha ? `Anteil Großbuchstaben: <b>${Math.round(100 * upperRatio)}%</b>` : "Kein sinnvoll auswertbarer Buchstabenanteil."
+      ]
+    );
+
+    const hasDup = dupParts.length > 0;
+    const tooManyParts = parts.length > 4;
+    const messySep = multiSep >= 4;
+
+    push(
+      hasDup || tooManyParts || messySep ? "warn" : "ok",
+      "Struktur / Separatoren",
+      "Geprüft wurde, ob der Titel unnötig zerstückelt wirkt oder Teile mehrfach wiederholt.",
+      [
+        `Segmente: <b>${parts.length}</b>`,
+        parts.length
+          ? `Erkannte Segmente: <code>${esc(parts.join(" | "))}</code>`
+          : "Keine relevanten Segmente erkannt.",
+        hasDup
+          ? `Doppelte Segmente erkannt: <code>${esc(uniq(dupParts).join(", "))}</code>`
+          : "Keine doppelten Segmente erkannt.",
+        tooManyParts ? "Viele Segmente können den Titel unruhig machen." : "",
+        messySep ? `Sehr viele Separatoren erkannt (<b>${multiSep}</b>).` : ""
+      ].filter(Boolean)
+    );
+
+    const urlish = urlishRe.test(title);
+    push(
+      urlish ? "fail" : "ok",
+      "Nicht wie URL / Rohdaten",
+      urlish
+        ? "Der Titel wirkt eher wie eine URL oder technische Rohangabe statt wie ein sprechender Dokumenttitel."
+        : "Der Titel wirkt nicht wie eine URL oder reine Rohangabe.",
+      [`Titel: <code>${esc(title)}</code>`]
+    );
+
+    if (h1) {
+      const s = sim(title, h1);
+      push(
+        s >= 0.45 ? "ok" : "warn",
+        "Abgleich mit H1",
+        "Verglichen wurde grob, ob der Titel thematisch zur Hauptüberschrift passt. Das ist kein Muss, aber oft ein gutes Signal.",
+        [
+          `<b>H1:</b> <code>${esc(h1)}</code>`,
+          `Wortähnlichkeit: <b>${Math.round(100 * s)}%</b>`,
+          s < 0.2
+            ? "Titel und H1 wirken sprachlich recht weit auseinander."
+            : "Titel und H1 passen grob zusammen."
+        ]
+      );
+    } else {
+      push(
+        "warn",
+        "Abgleich mit H1",
+        "Es wurde keine <code>&lt;h1&gt;</code> gefunden; daher konnte kein Plausibilitätsabgleich mit der Hauptüberschrift erfolgen."
+      );
+    }
+
+    if (og) {
+      const s = sim(title, og);
+      push(
+        s >= 0.6 ? "ok" : "warn",
+        "Vergleich mit og:title",
+        "Verglichen wurde der Browsertitel mit dem Open-Graph-Titel. Größere Unterschiede sind nicht automatisch falsch, aber oft prüfenswert.",
+        [
+          `<b>og:title:</b> <code>${esc(og)}</code>`,
+          `Wortähnlichkeit: <b>${Math.round(100 * s)}%</b>`
+        ]
+      );
+    } else {
+      push("warn", "Vergleich mit og:title", "Es wurde kein <code>og:title</code> gefunden.");
+    }
+  }
+
+  const score = checks.reduce((n, c) => n + (c.status === "ok" ? 2 : c.status === "warn" ? 1 : 0), 0);
+  const max = checks.length * 2;
+  const overall = score / max >= 0.8 ? "ok" : score / max >= 0.55 ? "warn" : "fail";
+
+  const summary =
+    overall === "ok"
+      ? "Der Dokumenttitel wirkt insgesamt brauchbar und relativ sauber formuliert."
+      : overall === "warn"
+      ? "Der Dokumenttitel ist teilweise brauchbar, hat aber auffällige Schwächen oder Unklarheiten."
+      : "Der Dokumenttitel wirkt insgesamt problematisch und sollte sehr wahrscheinlich überarbeitet werden.";
+
+  const items = checks
+    .map(
+      (c, i) => `
+      <div class="box">
+        <div class="head">
+          <div class="title">${i + 1}. ${esc(c.name)}</div>
+          <span class="badge ${c.status}">${badge(c.status)}</span>
+        </div>
+        <div class="meta">${c.meta}</div>
+        ${
+          c.items && c.items.length
+            ? `<div style="margin-top:10px">
+                ${c.items.map((x, j) => `<div class="item"><div>${j + 1}. ${x}</div></div>`).join("")}
+               </div>`
+            : ""
+        }
+      </div>`
+    )
+    .join("");
+
+  const html = `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Title Check</title>
+<style>
+body{font:14px system-ui,sans-serif;margin:16px;color:#111}
+h1{font-size:18px;margin:0 0 6px}
+.url{font-size:12px;color:#555;margin-bottom:16px;word-break:break-all}
+.box{border:1px solid #ddd;border-radius:10px;padding:12px;margin-bottom:12px}
+.head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.title{font-size:15px;font-weight:700}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid}
+.badge.ok{background:#eaf7ed;color:#187a34;border-color:#b7dfc2}
+.badge.warn{background:#fff7e8;color:#9a6700;border-color:#f3d08b}
+.badge.fail{background:#fdecec;color:#b42318;border-color:#f1b2b2}
+.meta{color:#444;line-height:1.5}
+.item{padding:8px 0;border-top:1px solid #eee}
+.item:first-child{border-top:0}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#f6f6f6;padding:1px 4px;border-radius:4px}
+</style>
+</head>
+<body>
+  <h1>Checks</h1>
+  <div class="url">${esc(location.href)}</div>
+
+  <div class="box">
+    <div class="head">
+      <div class="title">Gesamtbewertung</div>
+      <span class="badge ${overall}">${badge(overall)}</span>
+    </div>
+    <div class="meta">
+      ${summary}<br>
+      Score: <b>${score}/${max}</b>
+    </div>
+    <div style="margin-top:10px">
+      <div class="item"><div><b>Dokumenttitel:</b> <code>${esc(title || "(leer)")}</code></div></div>
+      ${h1 ? `<div class="item"><div><b>H1:</b> <code>${esc(h1)}</code></div></div>` : ""}
+      ${og ? `<div class="item"><div><b>og:title:</b> <code>${esc(og)}</code></div></div>` : ""}
+    </div>
+  </div>
+
+  ${items}
+</body>
+</html>`;
+
+  const w = window.open("about:blank", "_blank");
+  if (!w) {
+    alert("Popup blockiert.");
+    return;
+  }
+
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+})();

@@ -1,0 +1,1016 @@
+(() => {
+  const esc = (s) =>
+    String(s ?? "").replace(/[&<>"']/g, (m) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    }[m]));
+
+  const cut = (s, n = 180) => {
+    s = String(s ?? "");
+    return s.length > n ? s.slice(0, n - 1) + "…" : s;
+  };
+
+  const domPath = (el, maxDepth = 6) => {
+    const parts = [];
+    let cur = el;
+    let depth = 0;
+
+    while (cur && cur.nodeType === 1 && depth < maxDepth) {
+      let part = (cur.tagName || "").toLowerCase();
+
+      if (cur.id) {
+        part += `#${cur.id}`;
+        parts.unshift(part);
+        break;
+      }
+
+      if (cur.classList && cur.classList.length) {
+        part += "." + Array.from(cur.classList).slice(0, 2).join(".");
+      }
+
+      if (cur.parentElement) {
+        const sibs = Array.from(cur.parentElement.children).filter(
+          (x) => x.tagName === cur.tagName
+        );
+        if (sibs.length > 1) {
+          part += `:nth-of-type(${sibs.indexOf(cur) + 1})`;
+        }
+      }
+
+      parts.unshift(part);
+      cur = cur.parentElement;
+      depth++;
+    }
+
+    return parts.join(" > ");
+  };
+
+  const isVisible = (el) => {
+    try {
+      const cs = getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      return !(
+        cs.display === "none" ||
+        cs.visibility === "hidden" ||
+        Number(cs.opacity) === 0 ||
+        r.width <= 0 ||
+        r.height <= 0
+      );
+    } catch {
+      return false;
+    }
+  };
+
+  const selOf = (el) => {
+    let s = (el.tagName || "").toLowerCase();
+    if (el.id) s += `#${el.id}`;
+    else if (el.classList && el.classList.length) {
+      s += "." + Array.from(el.classList).slice(0, 3).join(".");
+    }
+    return s || "(node)";
+  };
+
+  const sectionBox = (title, badgeText, badgeClass, intro, bodyHtml) => `
+    <section class="box">
+      <div class="head">
+        <div class="title">${esc(title)}</div>
+        <span class="badge ${badgeClass}">${esc(badgeText)}</span>
+      </div>
+      ${intro ? `<div class="meta">${intro}</div>` : ""}
+      <div style="margin-top:10px">${bodyHtml}</div>
+    </section>
+  `;
+
+  const item = (html) => `<div class="item">${html}</div>`;
+
+  const okItem = (text) => item(`<div class="oktxt">${esc(text)}</div>`);
+  const warnItem = (text) => item(`<div class="warntxt">${esc(text)}</div>`);
+  const failItem = (text) => item(`<div class="failtxt">${esc(text)}</div>`);
+
+  const results = [];
+
+  // 1. ALT TEXT AUDIT
+  (() => {
+    const imgs = Array.from(document.images || []);
+    const info = [];
+    const decorative = [];
+    const missing = [];
+
+    imgs.forEach((img) => {
+      const hasAlt = img.hasAttribute("alt");
+      const alt = img.getAttribute("alt");
+      const decorativeFlag =
+        (hasAlt && alt === "") ||
+        img.getAttribute("role") === "presentation" ||
+        img.getAttribute("aria-hidden") === "true";
+
+      const data = {
+        sel: selOf(img),
+        src:
+          img.currentSrc ||
+          img.src ||
+          img.getAttribute("data-src") ||
+          img.getAttribute("data-lazy-src") ||
+          "",
+        alt,
+        dom: domPath(img),
+      };
+
+      if (!hasAlt) missing.push(data);
+      else if (decorativeFlag) decorative.push(data);
+      else info.push(data);
+    });
+
+    const body = [
+      item(
+        `<div><b>Total images:</b> ${imgs.length}</div>
+         <div class="sub"><b>Informative:</b> ${info.length}</div>
+         <div class="sub"><b>Decorative:</b> ${decorative.length}</div>
+         <div class="sub"><b>Missing alt:</b> ${missing.length}</div>`
+      ),
+      missing.length
+        ? missing
+            .map((x, i) =>
+              item(`
+                <div><b>${i + 1}. Missing alt</b> — ${esc(x.sel)}</div>
+                <div class="sub"><b>Path:</b> <code>${esc(x.dom)}</code></div>
+                <div class="sub"><b>Source:</b> ${
+                  x.src ? esc(cut(x.src)) : "–"
+                }</div>
+              `)
+            )
+            .join("")
+        : okItem("No images without an alt attribute found."),
+    ].join("");
+
+    results.push({
+      title: "Alt text audit",
+      badgeText: missing.length ? "Check" : "OK",
+      badgeClass: missing.length ? "warn" : "ok",
+      intro: "Checks all <img> elements for the presence and type of alt text.",
+      body,
+      count: missing.length,
+      severity: missing.length ? 1 : 0,
+    });
+  })();
+
+  // 2. HEADING STRUCTURE AUDIT
+  (() => {
+    const heads = Array.from(document.querySelectorAll("h1,h2,h3,h4,h5,h6"));
+    const h1s = heads.filter((el) => el.tagName.toLowerCase() === "h1");
+    const jumps = [];
+
+    for (let i = 1; i < heads.length; i++) {
+      const prev = Number(heads[i - 1].tagName.slice(1));
+      const cur = Number(heads[i].tagName.slice(1));
+      if (cur > prev + 1) {
+        jumps.push({
+          from: heads[i - 1],
+          to: heads[i],
+          fromLv: prev,
+          toLv: cur,
+        });
+      }
+    }
+
+    const body = [
+      item(
+        `<div><b>Total headings:</b> ${heads.length}</div>
+         <div class="sub"><b>H1 count:</b> ${h1s.length}</div>
+         <div class="sub"><b>Hierarchy jumps:</b> ${jumps.length}</div>`
+      ),
+      h1s.length === 1
+        ? okItem("Exactly one H1 was found.")
+        : h1s.length === 0
+        ? failItem("No H1 was found.")
+        : failItem(`Multiple H1 elements found: ${h1s.length}.`),
+      jumps.length
+        ? jumps
+            .map((x, i) =>
+              item(`
+                <div><b>${i + 1}. Jump from h${x.fromLv} to h${x.toLv}</b></div>
+                <div class="sub"><b>From:</b> ${esc(
+                  cut(x.from.textContent.trim() || "(no text)")
+                )}</div>
+                <div class="sub"><b>To:</b> ${esc(
+                  cut(x.to.textContent.trim() || "(no text)")
+                )}</div>
+                <div class="sub"><b>Path:</b> <code>${esc(domPath(x.to))}</code></div>
+              `)
+            )
+            .join("")
+        : okItem("No heading level jumps found."),
+      heads.length
+        ? item(
+            `<div><b>Document order:</b></div>
+             <div class="sub" style="margin-top:8px">
+               ${heads
+                 .map((h) => {
+                   const lv = Number(h.tagName.slice(1));
+                   return `<div style="margin-left:${(lv - 1) * 18}px"><b>&lt;h${lv}&gt;</b> ${esc(
+                     cut(h.textContent.trim() || "(no text)", 120)
+                   )}</div>`;
+                 })
+                 .join("")}
+             </div>`
+          )
+        : failItem("No headings found on the page."),
+    ].join("");
+
+    const issues =
+      (h1s.length === 1 ? 0 : 1) + (jumps.length ? jumps.length : 0);
+
+    results.push({
+      title: "Heading structure audit",
+      badgeText: issues ? "Check" : "OK",
+      badgeClass: issues ? "warn" : "ok",
+      intro: "Checks for one H1 and obvious heading hierarchy jumps.",
+      body,
+      count: issues,
+      severity: issues ? 1 : 0,
+    });
+  })();
+
+  // 3. LIST STRUCTURE AUDIT
+  (() => {
+    const lists = Array.from(document.querySelectorAll("ul,ol,dl"));
+    const orphans = Array.from(document.querySelectorAll("li,dt,dd")).filter(
+      (el) => {
+        const p = el.parentElement;
+        if (!p) return true;
+        if (el.tagName === "LI") return !(p.tagName === "UL" || p.tagName === "OL");
+        if (el.tagName === "DT" || el.tagName === "DD") return p.tagName !== "DL";
+        return false;
+      }
+    );
+
+    const body = [
+      item(
+        `<div><b>Semantic lists found:</b> ${lists.length}</div>
+         <div class="sub"><b>Orphaned list items:</b> ${orphans.length}</div>`
+      ),
+      lists.length
+        ? lists
+            .map((el, i) => {
+              const tag = el.tagName.toLowerCase();
+              const count = el.querySelectorAll(tag === "dl" ? "dt,dd" : "li").length;
+              return item(`
+                <div><b>${i + 1}. &lt;${tag}&gt;</b> — items: ${count}</div>
+                <div class="sub"><b>Path:</b> <code>${esc(domPath(el))}</code></div>
+              `);
+            })
+            .join("")
+        : warnItem("No semantic lists found."),
+      orphans.length
+        ? orphans
+            .map((el, i) =>
+              item(`
+                <div><b>${i + 1}. Orphaned &lt;${el.tagName.toLowerCase()}&gt;</b></div>
+                <div class="sub"><b>Path:</b> <code>${esc(domPath(el))}</code></div>
+                <div class="sub"><b>Text:</b> ${esc(cut(el.textContent.trim() || "(empty)", 120))}</div>
+              `)
+            )
+            .join("")
+        : okItem("No orphaned list items found."),
+    ].join("");
+
+    results.push({
+      title: "List structure audit",
+      badgeText: orphans.length ? "Check" : "OK",
+      badgeClass: orphans.length ? "warn" : "ok",
+      intro: "Checks for semantic lists and orphaned list-related elements.",
+      body,
+      count: orphans.length,
+      severity: orphans.length ? 1 : 0,
+    });
+  })();
+
+  // 4. LANDMARKS AUDIT
+  (() => {
+    const landmarkRoles = [
+      "banner",
+      "navigation",
+      "main",
+      "contentinfo",
+      "complementary",
+      "search",
+      "form",
+      "region",
+    ];
+
+    const implicitSelectors = ["header", "nav", "main", "footer", "aside", "form", "section"];
+    const nodes = Array.from(
+      document.querySelectorAll(
+        [
+          ...implicitSelectors,
+          ...landmarkRoles.map((r) => `[role="${r}"]`),
+        ].join(",")
+      )
+    );
+
+    const unique = Array.from(new Set(nodes));
+    const items = unique.map((el) => {
+      const tag = (el.tagName || "").toLowerCase();
+      const role = el.getAttribute("role") || "";
+      const ariaLabel = el.getAttribute("aria-label") || "";
+      const ariaLabelledby = el.getAttribute("aria-labelledby") || "";
+      const issues = [];
+
+      if (tag === "section" && !role && !ariaLabel && !ariaLabelledby) {
+        issues.push("<section> without an accessible name or landmark role.");
+      }
+      if (tag === "form" && !role && !ariaLabel && !ariaLabelledby) {
+        issues.push("<form> without an accessible name or landmark role.");
+      }
+      if (
+        role &&
+        ["navigation", "complementary", "region", "form", "search"].includes(role) &&
+        !ariaLabel &&
+        !ariaLabelledby
+      ) {
+        issues.push(`Landmark role "${role}" should be named.`);
+      }
+
+      return {
+        tag,
+        role,
+        ariaLabel,
+        ariaLabelledby,
+        visible: isVisible(el),
+        dom: domPath(el),
+        issues,
+      };
+    });
+
+    const mainCount = items.filter((x) => x.tag === "main" || x.role === "main").length;
+    const navs = items.filter((x) => x.tag === "nav" || x.role === "navigation");
+    const bannerCount = items.filter((x) => x.tag === "header" || x.role === "banner").length;
+    const contentinfoCount = items.filter((x) => x.tag === "footer" || x.role === "contentinfo").length;
+
+    const warnings = [];
+    if (mainCount === 0) warnings.push("No main landmark found.");
+    if (mainCount > 1) warnings.push(`Multiple main landmarks found: ${mainCount}.`);
+    if (bannerCount === 0) warnings.push("No page banner/header landmark found.");
+    if (contentinfoCount === 0) warnings.push("No contentinfo/footer landmark found.");
+    if (navs.length > 1) {
+      navs.forEach((n, i) => {
+        if (!n.ariaLabel && !n.ariaLabelledby) {
+          warnings.push(`Navigation ${i + 1} is not distinguishably named.`);
+        }
+      });
+    }
+
+    const problemItems = items.filter((x) => x.issues.length);
+
+    const body = [
+      item(
+        `<div><b>Landmark candidates:</b> ${items.length}</div>
+         <div class="sub"><b>main:</b> ${mainCount}</div>
+         <div class="sub"><b>banner/header:</b> ${bannerCount}</div>
+         <div class="sub"><b>contentinfo/footer:</b> ${contentinfoCount}</div>
+         <div class="sub"><b>navigation:</b> ${navs.length}</div>`
+      ),
+      warnings.length
+        ? warnings.map((w) => warnItem(w)).join("")
+        : okItem("No global landmark warnings found."),
+      items.length
+        ? items
+            .map((x, i) =>
+              item(`
+                <div><b>${i + 1}. &lt;${esc(x.tag)}&gt;${x.role ? ` role="${esc(x.role)}"` : ""}</b></div>
+                <div class="sub"><b>Visible:</b> ${x.visible ? "yes" : "no"}</div>
+                <div class="sub"><b>Name:</b> ${esc(x.ariaLabel || x.ariaLabelledby || "–")}</div>
+                <div class="sub"><b>Path:</b> <code>${esc(x.dom)}</code></div>
+                ${
+                  x.issues.length
+                    ? `<div class="sub failtxt">${x.issues.map(esc).join("<br>")}</div>`
+                    : `<div class="sub oktxt">No direct issue detected.</div>`
+                }
+              `)
+            )
+            .join("")
+        : failItem("No landmark candidates found."),
+    ].join("");
+
+    const issues = warnings.length + problemItems.length;
+
+    results.push({
+      title: "Landmarks audit",
+      badgeText: issues ? "Check" : "OK",
+      badgeClass: issues ? "warn" : "ok",
+      intro: "Checks landmark presence, naming, and common structural problems.",
+      body,
+      count: issues,
+      severity: issues ? 1 : 0,
+    });
+  })();
+
+  // 5. FOCUS INDICATOR AUDIT
+  (() => {
+    const focusable = Array.from(
+      document.querySelectorAll(
+        'a[href],button,input,select,textarea,summary,[tabindex]:not([tabindex="-1"]),[contenteditable="true"],audio[controls],video[controls],iframe'
+      )
+    ).filter((el) => !el.disabled && isVisible(el));
+
+    const checked = focusable.slice(0, 400);
+    const problems = [];
+
+    const detectIssue = (el) => {
+      const cs = getComputedStyle(el);
+      const outlineStyle = cs.outlineStyle;
+      const outlineWidth = parseFloat(cs.outlineWidth) || 0;
+      const outlineColor = cs.outlineColor || "";
+      const boxShadow = cs.boxShadow || "";
+      const hasOutline = outlineStyle !== "none" && outlineWidth > 0;
+      const hasShadow = boxShadow && boxShadow !== "none";
+      const transparent = /rgba?\([^)]+,\s*0\)|transparent/i;
+
+      if (!hasOutline && !hasShadow) {
+        return "No visible focus indicator detected via outline or box-shadow.";
+      }
+      if (hasOutline && transparent.test(outlineColor)) {
+        return "Outline exists, but appears transparent.";
+      }
+      if (hasOutline && outlineWidth < 1) {
+        return "Outline exists, but is very thin (< 1px).";
+      }
+      if (!hasOutline && hasShadow && /0px 0px 0px 0px/.test(boxShadow)) {
+        return "Box-shadow exists, but has no visible spread.";
+      }
+      return null;
+    };
+
+    checked.forEach((el) => {
+      try {
+        el.focus({ preventScroll: true });
+      } catch {}
+      const issue = detectIssue(el);
+      if (issue) problems.push({ el, issue });
+    });
+
+    const body = [
+      item(
+        `<div><b>Focusable elements sampled:</b> ${checked.length}</div>
+         <div class="sub"><b>Potential focus indicator issues:</b> ${problems.length}</div>`
+      ),
+      problems.length
+        ? problems
+            .map((x, i) =>
+              item(`
+                <div><b>${i + 1}. ${esc(x.el.tagName.toLowerCase())}</b></div>
+                <div class="sub failtxt">${esc(x.issue)}</div>
+                <div class="sub"><b>Path:</b> <code>${esc(domPath(x.el))}</code></div>
+                <div class="sub"><b>Text:</b> ${esc(
+                  cut(
+                    x.el.innerText ||
+                      x.el.value ||
+                      x.el.getAttribute("aria-label") ||
+                      x.el.textContent ||
+                      "(empty)",
+                    120
+                  )
+                )}</div>
+              `)
+            )
+            .join("")
+        : okItem("No obvious focus indicator problems found in the sample."),
+    ].join("");
+
+    results.push({
+      title: "Focus indicator audit",
+      badgeText: problems.length ? "Check" : "OK",
+      badgeClass: problems.length ? "warn" : "ok",
+      intro: "Heuristic CSS-based check for visible focus styles on sampled interactive elements.",
+      body,
+      count: problems.length,
+      severity: problems.length ? 1 : 0,
+    });
+  })();
+
+  // 6. HTML LANG AUDIT
+  (() => {
+    const htmlEl = document.documentElement;
+    const lang = htmlEl.getAttribute("lang");
+    const xmlLang = htmlEl.getAttribute("xml:lang");
+    const valid = !!lang && /^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$/.test(lang);
+
+    const body = [
+      item(
+        `<div><b>lang:</b> <code>${esc(lang || "(not set)")}</code></div>
+         <div class="sub"><b>xml:lang:</b> <code>${esc(xmlLang || "(not set)")}</code></div>`
+      ),
+      valid
+        ? okItem("A formally plausible lang attribute is present.")
+        : failItem("No formally plausible lang attribute was found on <html>."),
+    ].join("");
+
+    results.push({
+      title: "HTML lang audit",
+      badgeText: valid ? "OK" : "Fail",
+      badgeClass: valid ? "ok" : "fail",
+      intro: "Checks the lang and xml:lang attributes on the <html> element.",
+      body,
+      count: valid ? 0 : 1,
+      severity: valid ? 0 : 2,
+    });
+  })();
+
+  // 7. DUPLICATE IDS / DUPLICATE ATTRIBUTES AUDIT
+  (() => {
+    const all = Array.from(document.querySelectorAll("[id]"));
+    const map = new Map();
+
+    all.forEach((el) => {
+      const id = el.id || "";
+      if (!map.has(id)) map.set(id, []);
+      map.get(id).push(el);
+    });
+
+    const dups = Array.from(map.entries()).filter(([id, list]) => id && list.length > 1);
+
+    const htmlSource =
+      document.documentElement?.outerHTML || document.body?.outerHTML || "";
+    const attrDupHits = [];
+
+    try {
+      const tags = htmlSource.match(/<[^>]+>/g) || [];
+      tags.forEach((tag) => {
+        const names = [];
+        const re = /([:\w-]+)(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>=]+))?/g;
+        let m;
+        while ((m = re.exec(tag))) {
+          const name = m[1].toLowerCase();
+          if (name.startsWith("<") || name === "/") continue;
+          if (names.includes(name)) attrDupHits.push({ tag, name });
+          names.push(name);
+        }
+      });
+    } catch {}
+
+    const body = [
+      item(
+        `<div><b>Duplicate IDs:</b> ${dups.length}</div>
+         <div class="sub"><b>Possible duplicate attributes in source:</b> ${attrDupHits.length}</div>`
+      ),
+      dups.length
+        ? dups
+            .map(([id, list], i) =>
+              item(`
+                <div><b>${i + 1}. id="${esc(id)}"</b> — ${list.length} occurrences</div>
+                ${list
+                  .map(
+                    (el) =>
+                      `<div class="sub"><b>Path:</b> <code>${esc(domPath(el))}</code></div>`
+                  )
+                  .join("")}
+              `)
+            )
+            .join("")
+        : okItem("No duplicate IDs found."),
+      attrDupHits.length
+        ? attrDupHits
+            .slice(0, 60)
+            .map((x, i) =>
+              item(`
+                <div><b>${i + 1}. Duplicate attribute name:</b> ${esc(x.name)}</div>
+                <div class="sub"><code>${esc(cut(x.tag, 220))}</code></div>
+              `)
+            )
+            .join("")
+        : okItem("No obvious duplicate attributes found in the current HTML source."),
+    ].join("");
+
+    const issues = dups.length + attrDupHits.length;
+
+    results.push({
+      title: "Duplicate IDs / duplicate attributes audit",
+      badgeText: issues ? "Check" : "OK",
+      badgeClass: issues ? "warn" : "ok",
+      intro: "Checks for duplicate ID values and heuristically scans source tags for repeated attribute names.",
+      body,
+      count: issues,
+      severity: dups.length ? 2 : issues ? 1 : 0,
+    });
+  })();
+
+  // 8. 320PX HORIZONTAL SCROLL AUDIT
+  (() => {
+    const overflowing = [];
+    Array.from(document.querySelectorAll("body *")).forEach((el) => {
+      try {
+        const r = el.getBoundingClientRect();
+        if (r.width > 320 && r.left >= 0) {
+          overflowing.push({ el, width: Math.round(r.width) });
+        }
+      } catch {}
+    });
+
+    const body = [
+      item(`<div><b>Elements wider than 320px:</b> ${overflowing.length}</div>`),
+      overflowing.length
+        ? overflowing
+            .slice(0, 100)
+            .map((x, i) =>
+              item(`
+                <div><b>${i + 1}. ${(x.el.tagName || "").toLowerCase()}</b> — width: ${x.width}px</div>
+                <div class="sub"><b>Path:</b> <code>${esc(domPath(x.el))}</code></div>
+                <div class="sub"><code>${esc(cut(x.el.outerHTML || "", 220))}</code></div>
+              `)
+            )
+            .join("")
+        : okItem("No obviously rendered elements wider than 320px were found."),
+    ].join("");
+
+    results.push({
+      title: "320px horizontal scroll audit",
+      badgeText: overflowing.length ? "Check" : "OK",
+      badgeClass: overflowing.length ? "warn" : "ok",
+      intro: "Heuristic check for elements whose rendered width exceeds 320 CSS pixels.",
+      body,
+      count: overflowing.length,
+      severity: overflowing.length ? 1 : 0,
+    });
+  })();
+
+  // 9. TABLE AUDIT
+  (() => {
+    const tables = Array.from(document.querySelectorAll("table"));
+
+    const isStyled = (el) => {
+      const nodes = [el, ...el.querySelectorAll("th,td,caption,thead,tbody,tfoot,tr")];
+      return nodes.some((n) => {
+        const cs = getComputedStyle(n);
+        const bg = cs.backgroundColor;
+        const bc = cs.borderTopColor || cs.borderColor;
+        const bw = cs.borderTopWidth || cs.borderWidth;
+        return (
+          (bg && bg !== "rgba(0, 0, 0, 0)" && bg !== "transparent") ||
+          (bc &&
+            bc !== "rgba(0, 0, 0, 0)" &&
+            bc !== "transparent" &&
+            bw !== "0px")
+        );
+      });
+    };
+
+    const badStructure = [];
+    const badTransparent = [];
+
+    tables.forEach((table, i) => {
+      const rows = Array.from(table.querySelectorAll("tr"));
+      const ths = Array.from(table.querySelectorAll("th"));
+      const caps = Array.from(table.querySelectorAll("caption"));
+      const summary = table.getAttribute("summary");
+      const ids = table.querySelectorAll("[id]");
+      const headers = table.querySelectorAll("[headers]");
+
+      rows.forEach((tr, ri) => {
+        const badCells = Array.from(tr.children).filter(
+          (ch) => !["TD", "TH"].includes(ch.tagName)
+        );
+        if (badCells.length) {
+          badStructure.push({
+            table,
+            tableIndex: i + 1,
+            rowIndex: ri + 1,
+            issue: "<tr> contains invalid direct child elements.",
+          });
+        }
+      });
+
+      ths.forEach((th) => {
+        if (!th.getAttribute("scope")) {
+          badStructure.push({
+            table,
+            tableIndex: i + 1,
+            node: th,
+            issue: "<th> without a scope attribute.",
+          });
+        }
+      });
+
+      if (!isStyled(table)) {
+        if (ths.length || caps.length || summary || ids.length || headers.length) {
+          badTransparent.push({
+            table,
+            tableIndex: i + 1,
+            ths: ths.length,
+            caps: caps.length,
+            summary: !!summary,
+            ids: ids.length,
+            headers: headers.length,
+          });
+        }
+      }
+    });
+
+    const body = [
+      item(
+        `<div><b>Tables found:</b> ${tables.length}</div>
+         <div class="sub"><b>Structure issues:</b> ${badStructure.length}</div>
+         <div class="sub"><b>Visually transparent but semantically data-like tables:</b> ${badTransparent.length}</div>`
+      ),
+      badStructure.length
+        ? badStructure
+            .map((x, i) =>
+              item(`
+                <div><b>${i + 1}. Table ${x.tableIndex}</b></div>
+                <div class="sub failtxt">${esc(x.issue)}</div>
+                <div class="sub"><b>Path:</b> <code>${esc(
+                  domPath(x.node || x.table)
+                )}</code></div>
+                ${
+                  x.rowIndex
+                    ? `<div class="sub"><b>Row:</b> ${x.rowIndex}</div>`
+                    : ""
+                }
+              `)
+            )
+            .join("")
+        : okItem("No obvious table structure issues found."),
+      badTransparent.length
+        ? badTransparent
+            .map((x, i) =>
+              item(`
+                <div><b>${i + 1}. Possibly transparent data table: Table ${x.tableIndex}</b></div>
+                <div class="sub"><b>th:</b> ${x.ths}, <b>caption:</b> ${x.caps}, <b>summary:</b> ${
+                x.summary ? "yes" : "no"
+              }, <b>IDs:</b> ${x.ids}, <b>headers:</b> ${x.headers}</div>
+                <div class="sub"><b>Path:</b> <code>${esc(domPath(x.table))}</code></div>
+              `)
+            )
+            .join("")
+        : okItem("No visually transparent tables with semantic table markers found."),
+    ].join("");
+
+    const issues = badStructure.length + badTransparent.length;
+
+    results.push({
+      title: "Table audit",
+      badgeText: issues ? "Check" : "OK",
+      badgeClass: issues ? "warn" : "ok",
+      intro: "Checks for rough table structure issues and visually transparent tables with data-table semantics.",
+      body,
+      count: issues,
+      severity: issues ? 1 : 0,
+    });
+  })();
+
+  // 10. EMPTY TAGS AUDIT
+  (() => {
+    const excludeVoid = true;
+    const voidTags = new Set([
+      "AREA","BASE","BR","COL","EMBED","HR","IMG","INPUT","LINK","META","PARAM","SOURCE","TRACK","WBR"
+    ]);
+
+    const hasTextNodeContent = (el) =>
+      Array.from(el.childNodes).some(
+        (n) => n.nodeType === Node.TEXT_NODE && n.textContent.trim() !== ""
+      );
+
+    const isEmpty = (el) => {
+      if (excludeVoid && voidTags.has(el.tagName)) return false;
+      if (el.attributes.length > 0) return false;
+      if (el.children.length > 0) return false;
+      if (hasTextNodeContent(el)) return false;
+      return true;
+    };
+
+    const all = Array.from(document.querySelectorAll("*"));
+    const empties = all.filter(isEmpty);
+    const grouped = empties.reduce((acc, el) => {
+      const tag = el.tagName.toLowerCase();
+      (acc[tag] ||= []).push(el);
+      return acc;
+    }, {});
+    const keys = Object.keys(grouped).sort((a, b) => grouped[b].length - grouped[a].length);
+
+    const body = [
+      item(`<div><b>Completely empty tags without attributes:</b> ${empties.length}</div>`),
+      empties.length
+        ? keys
+            .map((tag) =>
+              item(`
+                <div><b>&lt;${esc(tag)}&gt;</b> — count: ${grouped[tag].length}</div>
+                <div class="sub">
+                  ${grouped[tag]
+                    .slice(0, 12)
+                    .map(
+                      (el) => `
+                        <div style="margin-top:8px;padding-top:8px;border-top:1px solid #f0f0f0">
+                          <div><b>Path:</b> <code>${esc(domPath(el))}</code></div>
+                          <div style="margin-top:4px"><b>HTML:</b> <code>${esc(cut(el.outerHTML, 220))}</code></div>
+                        </div>
+                      `
+                    )
+                    .join("")}
+                </div>
+              `)
+            )
+            .join("")
+        : okItem("No completely empty tags without attributes found."),
+    ].join("");
+
+    results.push({
+      title: "Empty tags audit",
+      badgeText: empties.length ? "Check" : "OK",
+      badgeClass: empties.length ? "warn" : "ok",
+      intro: "Checks for elements with no attributes, no child elements, and no text content.",
+      body,
+      count: empties.length,
+      severity: empties.length ? 1 : 0,
+    });
+  })();
+
+  // SUMMARY
+  const failCount = results.filter((r) => r.badgeClass === "fail").length;
+  const warnCount = results.filter((r) => r.badgeClass === "warn").length;
+  const okCount = results.filter((r) => r.badgeClass === "ok").length;
+
+  const reportHtml = `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Combined Accessibility Audit Report</title>
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#fff;
+      --text:#111827;
+      --muted:#5b6472;
+      --border:#d8deea;
+      --ok-bg:#eaf7ed;
+      --ok-fg:#187a34;
+      --ok-bd:#b7dfc2;
+      --warn-bg:#fff7e8;
+      --warn-fg:#9a6700;
+      --warn-bd:#f3d08b;
+      --fail-bg:#fdecec;
+      --fail-fg:#b42318;
+      --fail-bd:#f1b2b2;
+      --shadow:0 10px 30px rgba(15,23,42,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      padding:24px;
+      background:var(--bg);
+      color:var(--text);
+      font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    }
+    .wrap{max-width:1200px;margin:0 auto}
+    h1{font-size:28px;line-height:1.2;margin:0 0 8px}
+    .subline{color:var(--muted);margin-bottom:18px;word-break:break-all}
+    .summary{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+      margin:18px 0 24px;
+    }
+    .stat{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:14px;
+      box-shadow:var(--shadow);
+    }
+    .stat .n{font-size:24px;font-weight:800}
+    .stat .l{margin-top:4px;color:var(--muted)}
+    .box{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:16px;
+      margin-bottom:16px;
+      box-shadow:var(--shadow);
+    }
+    .head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:8px;
+    }
+    .title{
+      font-size:17px;
+      font-weight:800;
+    }
+    .badge{
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      border:1px solid;
+      white-space:nowrap;
+    }
+    .badge.ok{background:var(--ok-bg);color:var(--ok-fg);border-color:var(--ok-bd)}
+    .badge.warn{background:var(--warn-bg);color:var(--warn-fg);border-color:var(--warn-bd)}
+    .badge.fail{background:var(--fail-bg);color:var(--fail-fg);border-color:var(--fail-bd)}
+    .meta{color:var(--muted)}
+    .item{
+      padding:10px 0;
+      border-top:1px solid #edf1f7;
+    }
+    .item:first-child{border-top:0}
+    .sub{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:12px;
+      word-break:break-word;
+    }
+    .oktxt{color:var(--ok-fg)}
+    .warntxt{color:var(--warn-fg)}
+    .failtxt{color:var(--fail-fg)}
+    code{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      background:#f3f5f8;
+      border-radius:6px;
+      padding:2px 5px;
+      word-break:break-word;
+    }
+    .toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin:0 0 18px;
+    }
+    .toc a{
+      text-decoration:none;
+      color:#0f4db8;
+      background:#eef4ff;
+      border:1px solid #c9d8ff;
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      font-weight:600;
+    }
+    @media (max-width:900px){
+      .summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media (max-width:560px){
+      body{padding:14px}
+      .summary{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Combined Accessibility Audit Report</h1>
+    <div class="subline"><b>URL:</b> ${esc(location.href)}</div>
+
+    <div class="summary">
+      <div class="stat">
+        <div class="n">${results.length}</div>
+        <div class="l">Checks run</div>
+      </div>
+      <div class="stat">
+        <div class="n">${okCount}</div>
+        <div class="l">OK</div>
+      </div>
+      <div class="stat">
+        <div class="n">${warnCount}</div>
+        <div class="l">Needs review</div>
+      </div>
+      <div class="stat">
+        <div class="n">${failCount}</div>
+        <div class="l">Failures</div>
+      </div>
+    </div>
+
+    <div class="toc">
+      ${results
+        .map(
+          (r, i) =>
+            `<a href="#section-${i + 1}">${i + 1}. ${esc(r.title)}</a>`
+        )
+        .join("")}
+    </div>
+
+    ${results
+      .map(
+        (r, i) => `
+          <div id="section-${i + 1}">
+            ${sectionBox(r.title, r.badgeText, r.badgeClass, r.intro, r.body)}
+          </div>
+        `
+      )
+      .join("")}
+  </div>
+</body>
+</html>`;
+
+  const report = window.open("", "_blank");
+  if (!report) {
+    alert("Popup blocked. Please allow popups for this page and run the script again.");
+    return;
+  }
+
+  report.document.open();
+  report.document.write(reportHtml);
+  report.document.close();
+})();
