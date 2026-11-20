@@ -113,7 +113,7 @@
         border-radius: 4px;
         background: var(--gray-100);
         color: var(--gray-950);
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         cursor: pointer;
       }
 
