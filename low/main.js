@@ -307,4 +307,34 @@
       newTab.setTimeout(() => newTab.URL.revokeObjectURL(blobUrl), 30_000);
     });
   }
+
+  for (const iframe of merged.querySelectorAll('iframe[src]')) {
+    const videoId = new URL(iframe.getAttribute('src'), output.baseURI).searchParams.get('video-id');
+    if (!videoId) continue;
+
+    const code = output.createElement('code');
+    code.textContent = videoId;
+    code.style.display = 'block';
+    iframe.before(code);
+  }
+
+  for (const audio of merged.querySelectorAll('audio')) {
+    const src = audio.getAttribute('src') || audio.querySelector('source[src]')?.getAttribute('src');
+    if (!src) continue;
+
+    const url = new URL(src, output.baseURI);
+    addButton(audio, 'Download audio', async () => {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+
+      const blobUrl = newTab.URL.createObjectURL(await response.blob());
+      const download = output.createElement('a');
+      download.href = blobUrl;
+      download.download = url.pathname.split('/').pop() || 'audio';
+      output.body.append(download);
+      download.click();
+      download.remove();
+      newTab.setTimeout(() => newTab.URL.revokeObjectURL(blobUrl), 30_000);
+    });
+  }
 })();
