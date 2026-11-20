@@ -15,136 +15,142 @@
   }
 
   newTab.document.write(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>Merged Pages</title>
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
-        <style>
-          :root {
-            --gray-50: #f4f4f6;
-            --gray-100: #e4e4e8;
-            --gray-200: #cfcfd6;
-            --gray-300: #b1b1bf;
-            --gray-400: #8d8da2;
-            --gray-500: #707087;
-            --gray-600: #58586a;
-            --gray-700: #3e3e4a;
-            --gray-800: #26262c;
-            --gray-900: #161619;
-            --gray-950: #0e0e10;
-          }
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Merged Pages</title>
+    <style>
+      :root {
+        --gray-50: #f4f4f6;
+        --gray-100: #e4e4e8;
+        --gray-200: #cfcfd6;
+        --gray-300: #b1b1bf;
+        --gray-400: #8d8da2;
+        --gray-500: #707087;
+        --gray-600: #58586a;
+        --gray-700: #3e3e4a;
+        --gray-800: #26262c;
+        --gray-900: #161619;
+        --gray-950: #0e0e10;
+      }
 
-          * {
-            font-size: 1rem;
-            margin: 0;
-            padding: 0;
-          }
+      * {
+        font-size: 1rem;
+        margin: 0;
+        padding: 0;
+      }
 
-          html {
-            background: var(--gray-200);
-            color: var(--gray-900);
-			font-family: sans-serif;
-			line-height: 1.5;
-          }
+      html {
+        background: var(--gray-200);
+        color: var(--gray-900);
+        font-family: sans-serif;
+        line-height: 1.5;
+      }
 
-          body {
-            padding: 40px 15px;
-          }
+      body {
+        padding: 40px 15px;
+      }
 
-          section {
-            border: 2px solid var(--gray-600);
-            margin-bottom: 20px;
-            padding: 10px;
-            border-radius: 5px;
-			background: var(--gray-50);
-          }
+      section {
+        border: 2px solid var(--gray-600);
+        margin-bottom: 20px;
+        padding: 10px;
+        border-radius: 5px;
+        background: var(--gray-50);
+      }
 
 		  .highlight {
 		  	outline: 3px solid blue;
 		  }
 
-          .content {
-            max-width: 800px;
-            margin: 0 auto;
-          }
+      .content {
+        max-width: 800px;
+        margin: 0 auto;
+      }
 		  
 		  .elementCont {
 			  border: 1px solid var(--gray-600);
 			  border-radius: 5px;
 			  padding: 10px;
+        background: var(--gray-100);
 		  }
 		  
 		  .teaserTF {
 			  font-style: italic;
 			  padding-left: 5px;
-			  border-left: 1px solid var(--gray-400);
+			  border-left: 3px solid var(--gray-700);
 		  }
 
-          .teaserTFbgHell {
-            background: var(--gray-100);
-			margin: 5px 0;
-			border: 2px solid var(--gray-500);
-            padding: 5px 15px;
-            font-weight: bold;
-			border-radius: 5px
-          }
+      .teaserTFbgHell {
+        background: var(--gray-100);
+        margin: 5px 0;
+        border: 2px solid var(--gray-500);
+        padding: 5px 15px;
+        font-weight: bold;
+        border-radius: 5px
+      }
 
-          #merged :is(ul, ol, li) {
-            list-style: none !important;
-            padding-inline: 0 !important;
-            margin-inline: 0 !important;
-            text-indent: 0 !important;
-          }
+      #merged :is(ul, ol, li) {
+        list-style: none !important;
+        padding-inline: 0 !important;
+        margin-inline: 0 !important;
+        text-indent: 0 !important;
+      }
 
-          #merged li::marker {
-            content: "";
-          }
+      #merged li::marker {
+        content: "";
+      }
 
-          .elementCont + .elementCont {
-            margin-top: 12px;
-          }
+      .elementCont + .elementCont {
+        margin-top: 12px;
+      }
 
-          .merged-action {
-            margin-inline: 4px;
-            padding: 2px 6px;
-            border: 1px solid var(--gray-300);
-            border-radius: 4px;
-            background: var(--gray-100);
-			color: var(--gray-950);
-            font-size: 0.75rem;
-            cursor: pointer;
-          }
+      .merged-action {
+        margin-inline: 4px;
+        padding: 2px 6px;
+        border: 1px solid var(--gray-300);
+        border-radius: 4px;
+        background: var(--gray-100);
+        color: var(--gray-950);
+        font-size: 0.75rem;
+        cursor: pointer;
+      }
 
 		  .merged-action:hover {
 		  	background: var(--gray-200);
-			border-color: var(--gray-600);
+			  border-color: var(--gray-600);
 		  }
 
 		  .merged-action:active {
 		  	background: var(--gray-500);
-			border-color: var(--gray-800);
+			  border-color: var(--gray-800);
 		  }
-        </style>
-      </head>
-      <body>
-        <div class="content">
-          <main id="merged"></main>
-        </div>
-		<script>
 
-		document.addEventListener("click", (event) => {
-		  const container = event.target.closest(".elementCont");
-		
-		  document.querySelectorAll(".elementCont").forEach(el => {
-		    el.classList.toggle("highlight", el === container);
-		  });
-		});
-		
-		</script>
-      </body>
-    </html>
+      .elementCont > * {
+        background: #fff;
+        padding: 5px 10px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content">
+      <main id="merged">
+      </main>
+    </div>
+    <script>
+      document.addEventListener("click", (event) => {
+        const container = event.target.closest(".elementCont");
+      
+        document.querySelectorAll(".elementCont").forEach(el => {
+          el.classList.toggle("highlight", el === container);
+        });
+      });
+    </script>
+  </body>
+</html>
   `);
   newTab.document.close();
 
